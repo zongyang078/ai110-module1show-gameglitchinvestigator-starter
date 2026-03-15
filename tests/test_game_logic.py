@@ -1,4 +1,9 @@
-from logic_utils import check_guess, parse_guess, update_score
+import os
+import json
+import tempfile
+import pytest
+from logic_utils import check_guess, parse_guess, update_score, load_high_scores, save_high_score, is_new_high_score
+import logic_utils
 
 # --- Starter tests (fixed to match tuple return) ---
 
@@ -52,3 +57,55 @@ def test_score_on_wrong_guess():
     # Wrong guess should not change the score
     score = update_score(0, "Too High", 1)
     assert score == 0
+
+
+# --- High score tests ---
+
+@pytest.fixture(autouse=True)
+def use_temp_score_file(tmp_path, monkeypatch):
+    """Redirect HIGH_SCORE_FILE to a temp file for each test."""
+    temp_file = str(tmp_path / "high_scores.json")
+    monkeypatch.setattr(logic_utils, "HIGH_SCORE_FILE", temp_file)
+    yield
+
+
+def test_load_high_scores_empty():
+    # No file yet — should return empty list
+    scores = load_high_scores()
+    assert scores == []
+
+
+def test_save_and_load_high_score():
+    save_high_score(80, 2, "Easy")
+    scores = load_high_scores()
+    assert len(scores) == 1
+    assert scores[0]["score"] == 80
+    assert scores[0]["attempts"] == 2
+    assert scores[0]["difficulty"] == "Easy"
+
+
+def test_high_scores_sorted_and_capped():
+    # Save 6 scores — should keep only top 5, sorted highest first
+    for s in [10, 50, 30, 90, 70, 60]:
+        save_high_score(s, 3, "Normal")
+    scores = load_high_scores()
+    assert len(scores) == 5
+    assert scores[0]["score"] == 90
+    assert scores[-1]["score"] == 30
+
+
+def test_is_new_high_score_empty():
+    # Any score qualifies when leaderboard is empty
+    assert is_new_high_score(1) is True
+
+
+def test_is_new_high_score_makes_top5():
+    for s in [10, 20, 30, 40, 50]:
+        save_high_score(s, 3, "Normal")
+    assert is_new_high_score(25) is True
+
+
+def test_is_new_high_score_too_low():
+    for s in [60, 70, 80, 90, 100]:
+        save_high_score(s, 3, "Normal")
+    assert is_new_high_score(10) is False

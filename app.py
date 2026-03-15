@@ -1,6 +1,6 @@
 import random
 import streamlit as st
-from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score
+from logic_utils import get_range_for_difficulty, parse_guess, check_guess, update_score, load_high_scores, save_high_score, is_new_high_score
 # FIX: Imported all game logic from logic_utils.py using Claude
 
 st.set_page_config(page_title="Glitchy Guesser", page_icon="🎮")
@@ -27,6 +27,15 @@ low, high = get_range_for_difficulty(difficulty)
 
 st.sidebar.caption(f"Range: {low} to {high}")
 st.sidebar.caption(f"Attempts allowed: {attempt_limit}")
+
+st.sidebar.divider()
+st.sidebar.subheader("🏆 Top 5 High Scores")
+high_scores = load_high_scores()
+if high_scores:
+    for i, entry in enumerate(high_scores):
+        st.sidebar.caption(f"{i+1}. {entry['score']} pts — {entry['difficulty']} ({entry['attempts']} attempts)")
+else:
+    st.sidebar.caption("No scores yet. Win a game!")
 
 if "difficulty" not in st.session_state:
     st.session_state.difficulty = difficulty
@@ -129,10 +138,17 @@ if submit:
         if outcome == "Win":
             st.balloons()
             st.session_state.status = "won"
-            st.success(
-                f"You won! The secret was {st.session_state.secret}. "
-                f"Final score: {st.session_state.score}"
-            )
+            if is_new_high_score(st.session_state.score):
+                save_high_score(st.session_state.score, st.session_state.attempts, difficulty)
+                st.success(
+                    f"🏆 New high score! The secret was {st.session_state.secret}. "
+                    f"Final score: {st.session_state.score}"
+                )
+            else:
+                st.success(
+                    f"You won! The secret was {st.session_state.secret}. "
+                    f"Final score: {st.session_state.score}"
+                )
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"
