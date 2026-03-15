@@ -41,7 +41,7 @@ Further investigation revealed three more bugs: switching difficulty mid-game ke
   and what it showed you about your code.
 - Did AI help you design or understand any tests? How?
 
-I decided a bug was fixed by running the game manually through Streamlit and checking three things: that the hints pointed in the right direction, that the score stayed reasonable (not deeply negative), and that I could actually win the game. I also ran pytest tests/test_game_logic.py -v which ran 9 test cases covering check_guess, parse_guess, and update_score. For example, test_hint_message_direction verified that guessing 60 when the secret is 50 returns a message containing "LOWER", confirming the hint swap was fixed. Claude helped me design these tests by suggesting what to assert for each function based on the bugs we had just fixed.
+I decided a bug was fixed by running the game manually through Streamlit and checking three things: that the hints pointed in the right direction, that the score stayed reasonable (not deeply negative), and that I could actually win the game. I also ran pytest tests/test_game_logic.py -v which ran 15 test cases covering check_guess, parse_guess, update_score, and the new high score functions (load_high_scores, save_high_score, is_new_high_score). For example, test_hint_message_direction verified that guessing 60 when the secret is 50 returns a message containing "LOWER", confirming the hint swap was fixed. The high score tests used pytest fixtures (monkeypatch + tmp_path) to redirect the score file to a temp location so tests don't affect real game data. Claude helped me design these tests by suggesting what to assert for each function based on the bugs and features we worked on.
 
 ---
 

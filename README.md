@@ -25,9 +25,9 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+- [x] Describe the game's purpose.
+- [x] Detail which bugs you found.
+- [x] Explain what fixes you applied.
 
 This game had six bugs in total:
 
@@ -47,5 +47,14 @@ All game logic is in `logic_utils.py`. Nine pytest cases verify the fixes, all p
 ![Fixed winning game](demo_screenshot.png)
 
 ## 🚀 Stretch Features
+
+### Challenge 2: High Score Tracker ✅
+
+- [x] Implemented a persistent high score tracker using `logic_utils.py` (`load_high_scores`, `save_high_score`, `is_new_high_score`)
+- [x] Top 5 scores are saved to `high_scores.json`, sorted highest first, and displayed in the sidebar leaderboard
+- [x] When a player wins with a score that makes the top 5, the game shows "🏆 New high score!" instead of the regular win message
+- [x] Six new pytest cases verify sorting, capping at 5 entries, and correct qualification logic — all passing (15 total tests)
+
+The high score feature was planned and implemented with Claude as AI pair programmer. Claude suggested using `monkeypatch` + `tmp_path` pytest fixtures to isolate the file I/O in tests, which I verified kept real game data untouched during test runs.
 
 - [ ] [If you choose to complete Challenge 4, insert a screenshot of your Enhanced Game UI here]
